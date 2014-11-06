@@ -33,7 +33,7 @@ namespace API.Controllers
             public string id;
         }
 
-        public bool Post(string issueId, bool undo)
+        public bool Post(string issueId, bool undo = false)
         {
             var status = GetStatusToUpdateTo(issueId, !undo);
             UpdateIssueStatus(status, issueId);
