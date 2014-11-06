@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Web;
 using System.Web.Http;
 using Newtonsoft.Json;
 using API.Models;
@@ -23,12 +17,6 @@ namespace API.Controllers
         private class JiraLoginResponse
         {
             public string[] errorMessages;
-            public JiraLoginResponseSession session;
-        }
-
-        private class JiraLoginResponseSession
-        {
-            public string value;
         }
 
         // GET api/values
@@ -66,15 +54,15 @@ namespace API.Controllers
                 var result = json.Deserialize<JiraLoginResponse>(new JsonTextReader(new StreamReader(stream)));
                 if (status == WebExceptionStatus.Success)
                 {
-                    return new LoginResult()
+                    return new LoginResult
                     {
-                        Token = result.session.value,
+                        Token = response.Headers["Set-Cookie"],
                         Success = true,
                     }; 
                 }
                 else
                 {
-                    return new LoginResult()
+                    return new LoginResult
                     {
                         ErrorMessage = result.errorMessages[0],
                         Success = false,
