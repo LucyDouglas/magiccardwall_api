@@ -35,6 +35,7 @@ namespace API.Controllers
                 HttpWebRequest.Create("http://fedexatlassian:8080/rest/api/2/issue/"+issue+"/transitions");
             request.Method = "POST";
             request.ContentType = "application/json;charset=UTF-8";
+            request.Headers["Cookie"] = base.ControllerContext.Request.Headers.GetValues("Cookie").First();
 
             var json = new JsonSerializer();
             using (var writer = new JsonTextWriter(new StreamWriter(request.GetRequestStream())))
