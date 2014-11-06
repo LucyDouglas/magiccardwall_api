@@ -3,9 +3,9 @@ namespace API.Models
 {
     public enum Status
     {
-        NotStarted,
-        InProgress,
-        ProgressStopped,
-        Done
+        NotStarted = 10000,
+        InProgress = 11,
+        ProgressStopped = 31,
+        Done = 41
     }
 }

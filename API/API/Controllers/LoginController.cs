@@ -19,7 +19,7 @@ namespace API.Controllers
             public string[] errorMessages;
         }
 
-        // GET api/values
+        // GET api/login
         public LoginResult Post([FromBody]Credentials value)
         {
             var json = new JsonSerializer();
