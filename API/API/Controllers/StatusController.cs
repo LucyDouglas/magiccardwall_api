@@ -23,9 +23,9 @@ namespace API.Controllers
             public string id;
         }
 
-        public bool Post()
+        public bool Post(string issueId)
         {
-            UpdateIssueStatus(Status.InProgress, "mwd-5");
+            UpdateIssueStatus(Status.InProgress, issueId);
             return true;
         }
 
@@ -62,28 +62,7 @@ namespace API.Controllers
                 response = ex.Response;
                 status = ex.Status;
             }
-            //using (var stream = response.GetResponseStream())
-            //{
-            //    var result = json.Deserialize<JiraLoginResponse>(new JsonTextReader(new StreamReader(stream)));
-            //    if (status == WebExceptionStatus.Success)
-            //    {
-            //        return new LoginResult()
-            //        {
-            //            Token = result.session.value,
-            //            Success = true,
-            //        };
-            //    }
-            //    else
-            //    {
-            //        return new LoginResult()
-            //        {
-            //            ErrorMessage = result.errorMessages[0],
-            //            Success = false,
-            //        };
-            //    }
-            //}
-
         }
-        
+     
     }
 }
