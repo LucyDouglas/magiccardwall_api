@@ -54,12 +54,12 @@ namespace API.Controllers
 
             if (forward)
             {
-                if (transitionIds.Contains((int) Status.ProgressStopped)) return Status.Done;
+                if (transitionIds.Contains((int)Status.ProgressStopped)) return Status.Done;
                 return Status.InProgress;
             }
-            if (transitionIds.Contains((int) Status.Done)) return Status.ProgressStopped;
+            if (transitionIds.Contains((int)Status.Done)) return Status.ProgressStopped;
             return Status.ReopenStartProgress;
-            
+
 
         }
 
@@ -71,12 +71,12 @@ namespace API.Controllers
             using (var writer = new JsonTextWriter(new StreamWriter(request.GetRequestStream())))
             {
                 json.Serialize(writer, new TransitionRequest()
+                {
+                    transition = new TransitionRequestTransition()
                     {
-                        transition = new TransitionRequestTransition()
-                        {
-                            id = ((int)toStatus).ToString()
-                        }
-                    });
+                        id = ((int)toStatus).ToString()
+                    }
+                });
             }
 
             WebResponse response;
@@ -94,13 +94,13 @@ namespace API.Controllers
             }
         }
 
-        private WebRequest CreateTransitionRequest(string issueId, string method )
+        private WebRequest CreateTransitionRequest(string issueId, string method)
         {
             var request =
                 HttpWebRequest.Create("http://fedexatlassian:8080/rest/api/2/issue/" + issueId + "/transitions");
             request.Method = method;
             request.ContentType = "application/json;charset=UTF-8";
-            request.Headers["Cookie"] = base.ControllerContext.Request.Headers.GetValues("Cookie").First();
+            request.Headers["Authorization"] = "Basic " + base.ControllerContext.Request.Headers.GetValues("Cookie").First();
             return request;
         }
     }

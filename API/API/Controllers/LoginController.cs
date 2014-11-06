@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Web.Http;
 using Newtonsoft.Json;
@@ -30,10 +31,10 @@ namespace API.Controllers
             using (var writer = new JsonTextWriter(new StreamWriter(request.GetRequestStream())))
             {
                 json.Serialize(writer, new JiraLoginRequest()
-                    {
-                        username = value.Username,
-                        password = value.Password,
-                    });
+                {
+                    username = value.Username,
+                    password = value.Password,
+                });
             }
 
             WebResponse response;
@@ -56,9 +57,9 @@ namespace API.Controllers
                 {
                     return new LoginResult
                     {
-                        Token = response.Headers["Set-Cookie"],
+                        Token = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", value.Username, value.Password))),
                         Success = true,
-                    }; 
+                    };
                 }
                 else
                 {
@@ -66,7 +67,7 @@ namespace API.Controllers
                     {
                         ErrorMessage = result.errorMessages[0],
                         Success = false,
-                    }; 
+                    };
                 }
             }
         }
