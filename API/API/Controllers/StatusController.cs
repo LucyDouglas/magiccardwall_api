@@ -23,19 +23,49 @@ namespace API.Controllers
             public string id;
         }
 
-        public bool Post(string issueId)
+        private class TransitionResponse
         {
-            UpdateIssueStatus(Status.InProgress, issueId);
+            public TransitionResponseTransition[] transitions;
+        }
+
+        private class TransitionResponseTransition
+        {
+            public string id;
+        }
+
+        public bool Post(string issueId, bool undo)
+        {
+            var status = GetStatusToUpdateTo(issueId, !undo);
+            UpdateIssueStatus(status, issueId);
             return true;
         }
 
-        private void UpdateIssueStatus(Status toStatus, string issue)
+        private Status GetStatusToUpdateTo(string issueId, bool forward = true)
         {
-            var request =
-                HttpWebRequest.Create("http://fedexatlassian:8080/rest/api/2/issue/"+issue+"/transitions");
-            request.Method = "POST";
-            request.ContentType = "application/json;charset=UTF-8";
-            request.Headers["Cookie"] = base.ControllerContext.Request.Headers.GetValues("Cookie").First();
+            var request = CreateTransitionRequest(issueId, "GET");
+
+            var json = new JsonSerializer();
+            var transitionIds = new List<int>();
+            using (var stream = request.GetResponse().GetResponseStream())
+            {
+                var result = json.Deserialize<TransitionResponse>(new JsonTextReader(new StreamReader(stream)));
+                transitionIds.AddRange(result.transitions.Select(transition => Convert.ToInt32(transition.id)));
+            }
+
+            if (forward)
+            {
+                if (transitionIds.Contains((int) Status.ProgressStopped)) return Status.Done;
+                return Status.InProgress;
+            }
+            if (transitionIds.Contains((int) Status.Done)) return Status.ProgressStopped;
+            return Status.ReopenStartProgress;
+            
+
+        }
+
+        private void UpdateIssueStatus(Status toStatus, string issueId)
+        {
+            var request = CreateTransitionRequest(issueId, "POST");
 
             var json = new JsonSerializer();
             using (var writer = new JsonTextWriter(new StreamWriter(request.GetRequestStream())))
@@ -63,6 +93,15 @@ namespace API.Controllers
                 status = ex.Status;
             }
         }
-     
+
+        private WebRequest CreateTransitionRequest(string issueId, string method )
+        {
+            var request =
+                HttpWebRequest.Create("http://fedexatlassian:8080/rest/api/2/issue/" + issueId + "/transitions");
+            request.Method = method;
+            request.ContentType = "application/json;charset=UTF-8";
+            request.Headers["Cookie"] = base.ControllerContext.Request.Headers.GetValues("Cookie").First();
+            return request;
+        }
     }
 }
